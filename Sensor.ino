@@ -52,6 +52,7 @@ struct NodePacket : Packet {
     float hum, temp;
     float co, no2, nh3;
     uint16_t pm25, pm10;
+    uint8_t lvl;
 };
 
 struct GatewayPacket : Packet {
@@ -94,7 +95,7 @@ void setup() {
     RadioEvents.TxDone = OnTxDone;
     RadioEvents.TxTimeout = OnTxTimeout;
     RadioEvents.RxDone = OnRxDone;
-    RadioEvents.RxTimeout = OnUserButton;
+    RadioEvents.RxTimeout = OnRxTimeout;
 
     Radio.Init(&RadioEvents);
     Radio.SetChannel(RF_FREQUENCY);
@@ -137,10 +138,9 @@ void loop() {
         readDHT(&p);
         readMICS(&p);
         readPMS(&p);
+        changeColor(&p);
 
         showPacketInfo(p);
-
-        changeColor(p);
         turnOnRGB(color, 0);
 
         byte mem[sizeof(p)];
@@ -282,7 +282,7 @@ void calibrateSensors(){
         Serial.print(String{GPSTimeStable});
         Serial.print(String{GPSDateStable});
     }
-    while (!(NH3Stable && REDStable && OXStable /*&& GPSLocStable && GPSTimeStable && GPSDateStable*/)); //WARNING GPS DISABLED!
+    while (!(NH3Stable && REDStable && OXStable && GPSLocStable && GPSTimeStable && GPSDateStable));
 
     println("DONE!");
 
@@ -303,7 +303,7 @@ void OnTxTimeout(){
     state=RX;
 }
 
-void OnUserButton(){
+void OnRxTimeout(){
     Radio.Sleep();
     state = TX;
     Serial.println("Into TX Mode...");
@@ -394,13 +394,15 @@ void showPacketInfo(const NodePacket& p){
     println(str);
 }
 
-void changeColor(const NodePacket& p){
+void changeColor(NodePacket* p){
     int ans = INT_MIN;
-    ans = max(no2Level(p.no2), ans);
-    ans = max(nh3Level(p.nh3), ans);
-    ans = max(coLevel(p.co), ans);
-    ans = max(pm25Level(p.pm25), ans);
-    ans = max(pm10Level(p.pm10), ans);
+    ans = max(no2Level(p->no2), ans);
+    ans = max(nh3Level(p->nh3), ans);
+    ans = max(coLevel(p->co), ans);
+    ans = max(pm25Level(p->pm25), ans);
+    ans = max(pm10Level(p->pm10), ans);
+
+    p->lvl = ans;
 
     color = COLORS[ans];
 }
