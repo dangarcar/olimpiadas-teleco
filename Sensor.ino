@@ -282,7 +282,7 @@ void calibrateSensors(){
         Serial.print(String{GPSTimeStable});
         Serial.print(String{GPSDateStable});
     }
-    while (!(NH3Stable && REDStable && OXStable && GPSLocStable && GPSTimeStable && GPSDateStable));
+    while (!(NH3Stable && REDStable && OXStable /*&& GPSLocStable && GPSTimeStable && GPSDateStable*/));
 
     println("DONE!");
 
@@ -402,7 +402,7 @@ void changeColor(NodePacket* p){
     ans = max(pm25Level(p->pm25), ans);
     ans = max(pm10Level(p->pm10), ans);
 
-    p->lvl = ans;
+    p->lvl = ans+1;
 
     color = COLORS[ans];
 }
