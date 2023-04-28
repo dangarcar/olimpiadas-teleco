@@ -2,6 +2,15 @@
 #define PMS_HPP
 
 #include <Arduino.h>
+#include "softSerial.h"
+#include "PMS.h"
+
+#define PMS_TX GPIO8
+#define PMS_RX GPIO9
+
+softSerial pmsSerial(PMS_TX, PMS_RX);
+PMS pms(pmsSerial);
+PMS::DATA pmsData;
 
 //Salubridad del aire en PM2.5 0-4
 int pm25Level(uint16_t pm25){

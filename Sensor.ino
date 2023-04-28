@@ -77,17 +77,21 @@ volatile bool sleepMode = false;
 int16_t Rssi, rxSize;
 
 volatile uint32_t color;
+
 volatile bool calibrated = false;
+//volatile bool calibrated = true;
 
 void setup() {
-    VextON();
-    delay(10);
     Serial.begin(115200);
-    GPS.begin();
-    dht.begin();
+    pmsSerial.begin(9600);
 
     tft.init();
     tft.setFont(font);
+
+    VextON();
+    delay(10);
+    GPS.begin();
+    dht.begin();
 
     txNumber = 0;
     Rssi = 0;
@@ -214,56 +218,80 @@ void calibrateSensors(){
             GPS.encode(GPS.read());
         }
 
-        // Read new resistance for NH3
         unsigned long rs = 0;
-        delay(50);
-        for (int i = 0; i < 3; i++) {
-            delay(1);
-            rs += analogRead(NH3PIN);
+
+        if(!NH3Stable){ // Read new resistance for NH3
+            rs = 0;
+            delay(50);
+            for (int i = 0; i < 3; i++) {
+                delay(1);
+                rs += analogRead(NH3PIN);
+            }
+            curNH3 = rs/3;
+
+            // Update floating sum by subtracting value about to be overwritten and adding the new value.
+            fltSumNH3 = fltSumNH3 + curNH3 - bufferNH3[pntrNH3];
+
+            // Store new measurement in buffer
+            bufferNH3[pntrNH3] = curNH3;
+
+            // Determine new state of flags
+            NH3Stable = abs(fltSumNH3 / MICS_CALIBRATION_SECONDS - curNH3) < MICS_CALIBRATION_DELTA;
+
+            // Advance buffer pointer
+            pntrNH3 = (pntrNH3 + 1) % MICS_CALIBRATION_SECONDS ;
         }
-        curNH3 = rs/3;
 
-        // Read new resistance for CO
-        rs = 0;
-        delay(50);
-        for (int i = 0; i < 3; i++) {
-            delay(1);
-            rs += analogRead(COPIN);
+        
+
+        if(!REDStable){ // Read new resistance for CO
+            rs = 0;
+            delay(50);
+            for (int i = 0; i < 3; i++) {
+                delay(1);
+                rs += analogRead(COPIN);
+            }
+            curRED = rs/3;
+
+            // Update floating sum by subtracting value about to be overwritten and adding the new value.
+            fltSumRED = fltSumRED + curRED - bufferRED[pntrRED];
+
+            // Store new measurement in buffer
+            bufferRED[pntrRED] = curRED;
+
+            // Determine new state of flags
+            REDStable = abs(fltSumRED / MICS_CALIBRATION_SECONDS - curRED) < MICS_CALIBRATION_DELTA;
+
+            // Advance buffer pointer
+            pntrRED = (pntrRED + 1) % MICS_CALIBRATION_SECONDS;
         }
-        curRED = rs/3;
 
-        // Read new resistance for NO2
-        rs = 0;
-        delay(50);
-        for (int i = 0; i < 3; i++) {
-            delay(1);
-            rs += analogRead(OXPIN);
+        if(!OXStable){ // Read new resistance for NO2
+            rs = 0;
+            delay(50);
+            for (int i = 0; i < 3; i++) {
+                delay(1);
+                rs += analogRead(OXPIN);
+            }
+            curOX = rs/3;
+
+            // Update floating sum by subtracting value about to be overwritten and adding the new value.
+            fltSumOX = fltSumOX + curOX - bufferOX[pntrOX];
+
+            //Store new measurement in buffer
+            bufferOX[pntrOX] = curOX;
+
+            // Determine new state of flags
+            OXStable = abs(fltSumOX / MICS_CALIBRATION_SECONDS - curOX) < MICS_CALIBRATION_DELTA;
+
+            // Advance buffer pointer
+            pntrOX = (pntrOX + 1) % MICS_CALIBRATION_SECONDS;
         }
-        curOX = rs/3;
-
-        // Update floating sum by subtracting value about to be overwritten and adding the new value.
-        fltSumNH3 = fltSumNH3 + curNH3 - bufferNH3[pntrNH3];
-        fltSumRED = fltSumRED + curRED - bufferRED[pntrRED];
-        fltSumOX = fltSumOX + curOX - bufferOX[pntrOX];
-
-        // Store new measurement in buffer
-        bufferNH3[pntrNH3] = curNH3;
-        bufferRED[pntrRED] = curRED;
-        bufferOX[pntrOX] = curOX;
 
         // Determine new state of flags
-        NH3Stable = abs(fltSumNH3 / MICS_CALIBRATION_SECONDS - curNH3) < MICS_CALIBRATION_DELTA;
-        REDStable = abs(fltSumRED / MICS_CALIBRATION_SECONDS - curRED) < MICS_CALIBRATION_DELTA;
-        OXStable = abs(fltSumOX / MICS_CALIBRATION_SECONDS - curOX) < MICS_CALIBRATION_DELTA;
         GPSLocStable = GPS.location.isValid();
         GPSTimeStable = GPS.time.isValid();
         GPSDateStable = GPS.date.isValid();
-
-        // Advance buffer pointer
-        pntrNH3 = (pntrNH3 + 1) % MICS_CALIBRATION_SECONDS ;
-        pntrRED = (pntrRED + 1) % MICS_CALIBRATION_SECONDS;
-        pntrOX = (pntrOX + 1) % MICS_CALIBRATION_SECONDS;
-
 
         //SHOW INFO
         char txt[512];
@@ -282,7 +310,7 @@ void calibrateSensors(){
         Serial.print(String{GPSTimeStable});
         Serial.print(String{GPSDateStable});
     }
-    while (!(NH3Stable && REDStable && OXStable /*&& GPSLocStable && GPSTimeStable && GPSDateStable*/));
+    while (!(NH3Stable && REDStable && OXStable && GPSLocStable && GPSTimeStable && GPSDateStable));
 
     println("DONE!");
 
@@ -375,10 +403,11 @@ void readMICS(NodePacket* p){
     p->no2 = no2;
 }
 
-//TODO
 void readPMS(NodePacket* p){
-    p->pm25 = 0;
-    p->pm10 = 0;
+    while(!pms.read(pmsData));
+
+    p->pm25 = pmsData.PM_AE_UG_2_5;
+    p->pm10 = pmsData.PM_AE_UG_10_0;
 }
 
 void showPacketInfo(const NodePacket& p){
@@ -389,7 +418,7 @@ void showPacketInfo(const NodePacket& p){
     i += sprintf(str+i, "LAT:%d.%04d LON:%d.%04d\n", (int)p.lat, fracPart(p.lat,4), (int)p.lng, fracPart(p.lng, 4));
     i += sprintf(str+i, "Temp:%d.%02d Hum:%d.%02d\n", (int)p.temp, fracPart(p.temp, 2), (int)p.hum, fracPart(p.hum, 2));
     i += sprintf(str+i, "A:%d.%02d C:%d.%02d N:%d.%02d\n", (int)p.nh3, fracPart(p.nh3, 2), (int)p.co, fracPart(p.co, 2), (int)p.no2, fracPart(p.no2, 2));
-    i += sprintf(str+i, "PM2.5:%u PM10:%u\n", p.pm25, p.pm10);
+    i += sprintf(str+i, "PM2.5: %u   PM10: %u\n", p.pm25, p.pm10);
 
     println(str);
 }
