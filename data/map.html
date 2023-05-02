@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Demo: Make a heatmap with Mapbox GL JS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="./map.css">
+    <script defer src="./map.js"></script>
+</head>
+
+<body>
+    <h1>Mapamundi</h1>
+    <div class="container">
+        <div class="map-container">
+            <div class="map" id="map"></div>
+        </div>
+        <div class="graph">
+            <canvas class="ch" id="chart1"></canvas>
+            <canvas class="ch" id="chart2"></canvas>
+            <canvas class="ch" id="chart3"></canvas>
+        </div>
+    </div>
+</body>
+
+</html>
