@@ -109,7 +109,15 @@ void setup()
         });
 
         server.on("/data", HTTP_GET, [](AsyncWebServerRequest* request){
-            request->send(SD, "/t.geojson", "application/json");
+            unsigned long t = millis();
+            SD.remove(JSON_TEMP_FILE);
+            Serial.printf("Remove Time: %lu ", millis()-t);
+            t = millis();
+            sql->jsonQuery("SELECT ID,Time,Lon,Lat,Temp,Hum,NO2,CO,NH3,PM25,PM10,LVL FROM Data ORDER BY ID DESC", 2000);
+            Serial.printf("SQL Time: %lu ", millis()-t);
+            t = millis();
+            request->send(SD, JSON_TEMP_FILE, "application/json");
+            Serial.printf("Upload Time: %lu\n", millis()-t);
         });
 
         server.on("/last", HTTP_GET, [](AsyncWebServerRequest* request){
@@ -118,18 +126,6 @@ void setup()
             Serial.printf("Remove Time: %lu ", millis()-t);
             t = millis();
             sql->jsonQuery("SELECT ID,Time,Lon,Lat,Temp,Hum,NO2,CO,NH3,PM25,PM10,LVL FROM Data ORDER BY Time DESC LIMIT 1;");
-            Serial.printf("SQL Time: %lu ", millis()-t);
-            t = millis();
-            request->send(SD, JSON_TEMP_FILE, "application/json");
-            Serial.printf("Upload Time: %lu\n", millis()-t);
-        });
-
-        server.on("/query", HTTP_GET, [](AsyncWebServerRequest* request){
-            unsigned long t = millis();
-            SD.remove(JSON_TEMP_FILE);
-            Serial.printf("Remove Time: %lu ", millis()-t);
-            t = millis();
-            sql->jsonQuery("SELECT ID,Time,Lon,Lat,Temp,Hum,NO2,CO,NH3,PM25,PM10,LVL FROM Data ORDER BY ID DESC", 2000);
             Serial.printf("SQL Time: %lu ", millis()-t);
             t = millis();
             request->send(SD, JSON_TEMP_FILE, "application/json");
