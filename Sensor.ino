@@ -217,81 +217,56 @@ void calibrateSensors(){
         while (GPS.available() > 0) {
             GPS.encode(GPS.read());
         }
-
-        unsigned long rs = 0;
-
-        if(!NH3Stable){ // Read new resistance for NH3
-            rs = 0;
-            delay(50);
-            for (int i = 0; i < 3; i++) {
-                delay(1);
-                rs += analogRead(NH3PIN);
-            }
-            curNH3 = rs/3;
-
-            // Update floating sum by subtracting value about to be overwritten and adding the new value.
-            fltSumNH3 = fltSumNH3 + curNH3 - bufferNH3[pntrNH3];
-
-            // Store new measurement in buffer
-            bufferNH3[pntrNH3] = curNH3;
-
-            // Determine new state of flags
-            NH3Stable = abs(fltSumNH3 / MICS_CALIBRATION_SECONDS - curNH3) < MICS_CALIBRATION_DELTA;
-
-            // Advance buffer pointer
-            pntrNH3 = (pntrNH3 + 1) % MICS_CALIBRATION_SECONDS ;
-        }
-
         
-
-        if(!REDStable){ // Read new resistance for CO
-            rs = 0;
-            delay(50);
-            for (int i = 0; i < 3; i++) {
-                delay(1);
-                rs += analogRead(COPIN);
-            }
-            curRED = rs/3;
-
-            // Update floating sum by subtracting value about to be overwritten and adding the new value.
-            fltSumRED = fltSumRED + curRED - bufferRED[pntrRED];
-
-            // Store new measurement in buffer
-            bufferRED[pntrRED] = curRED;
-
-            // Determine new state of flags
-            REDStable = abs(fltSumRED / MICS_CALIBRATION_SECONDS - curRED) < MICS_CALIBRATION_DELTA;
-
-            // Advance buffer pointer
-            pntrRED = (pntrRED + 1) % MICS_CALIBRATION_SECONDS;
+        // Read new resistance for NH3
+        unsigned long rs = 0;
+        delay(50);
+        for (int i = 0; i < 3; i++) {
+            delay(1);
+            rs += analogRead(NH3PIN);
         }
+        curNH3 = rs/3;
 
-        if(!OXStable){ // Read new resistance for NO2
-            rs = 0;
-            delay(50);
-            for (int i = 0; i < 3; i++) {
-                delay(1);
-                rs += analogRead(OXPIN);
-            }
-            curOX = rs/3;
-
-            // Update floating sum by subtracting value about to be overwritten and adding the new value.
-            fltSumOX = fltSumOX + curOX - bufferOX[pntrOX];
-
-            //Store new measurement in buffer
-            bufferOX[pntrOX] = curOX;
-
-            // Determine new state of flags
-            OXStable = abs(fltSumOX / MICS_CALIBRATION_SECONDS - curOX) < MICS_CALIBRATION_DELTA;
-
-            // Advance buffer pointer
-            pntrOX = (pntrOX + 1) % MICS_CALIBRATION_SECONDS;
+        // Read new resistance for CO
+        rs = 0;
+        delay(50);
+        for (int i = 0; i < 3; i++) {
+            delay(1);
+            rs += analogRead(COPIN);
         }
+        curRED = rs/3;
+
+        // Read new resistance for NO2
+        rs = 0;
+        delay(50);
+        for (int i = 0; i < 3; i++) {
+            delay(1);
+            rs += analogRead(OXPIN);
+        }
+        curOX = rs/3;
+
+        // Update floating sum by subtracting value about to be overwritten and adding the new value.
+        fltSumNH3 = fltSumNH3 + curNH3 - bufferNH3[pntrNH3];
+        fltSumRED = fltSumRED + curRED - bufferRED[pntrRED];
+        fltSumOX = fltSumOX + curOX - bufferOX[pntrOX];
+
+        // Store new measurement in buffer
+        bufferNH3[pntrNH3] = curNH3;
+        bufferRED[pntrRED] = curRED;
+        bufferOX[pntrOX] = curOX;
 
         // Determine new state of flags
+        NH3Stable = abs(fltSumNH3 / MICS_CALIBRATION_SECONDS - curNH3) < MICS_CALIBRATION_DELTA;
+        REDStable = abs(fltSumRED / MICS_CALIBRATION_SECONDS - curRED) < MICS_CALIBRATION_DELTA;
+        OXStable = abs(fltSumOX / MICS_CALIBRATION_SECONDS - curOX) < MICS_CALIBRATION_DELTA;
         GPSLocStable = GPS.location.isValid();
         GPSTimeStable = GPS.time.isValid();
         GPSDateStable = GPS.date.isValid();
+
+        // Advance buffer pointer
+        pntrNH3 = (pntrNH3 + 1) % MICS_CALIBRATION_SECONDS ;
+        pntrRED = (pntrRED + 1) % MICS_CALIBRATION_SECONDS;
+        pntrOX = (pntrOX + 1) % MICS_CALIBRATION_SECONDS;
 
         //SHOW INFO
         char txt[512];
