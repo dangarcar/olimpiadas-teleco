@@ -13,8 +13,9 @@ const levelColors = {
     5 : 'rgb(163, 2, 69)'
 }
 
-var dark = false;
+let dark = false;
 const urlMap = dark ? 'https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json' : 'https://tiles.stadiamaps.com/styles/alidade_smooth.json';
+const url = '/data';
 
 const map = new maplibregl.Map({
     container: 'map',
@@ -23,14 +24,8 @@ const map = new maplibregl.Map({
     zoom: 12
 });
 
-// MapLibre GL JS does not handle RTL text by default, so we recommend adding this dependency to fully support RTL rendering. 
-maplibregl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.1/mapbox-gl-rtl-text.js');
-
-//const url = '/query';
-const url = '/temp.json';
-map.on('load', () => {    
+map.on('load', () => {
     // Add a geojson point source.
-    // Heatmap layers also work with a vector tile source.
     map.addSource('gasses', {
         'type': 'geojson',
         'data': url
@@ -44,7 +39,7 @@ map.on('load', () => {
             'paint': {
                 'circle-radius': 15,
                 'circle-color': [
-                    'interpolate',
+                'interpolate',
                     ['linear'],
                     ['get', 'LVL'],
                     1,
@@ -65,9 +60,9 @@ map.on('load', () => {
         'waterway'
     );
 
-    // When a click event occurs on a feature in the places layer, open a popup at the
-    // location of the feature, with description HTML from its properties.
+    // When a click event occurs on a feature in the places layer, open a popup at the location of the feature, with description HTML from its properties.
     map.on('click', 'gasses-point', async (e) => {
+        CloseDetails();
         let coordinates = e.features[0].geometry.coordinates.slice();
         let props = e.features[0].properties;
 
@@ -88,24 +83,32 @@ map.on('load', () => {
     map.on('mouseleave', 'gasses-point', () => {
         map.getCanvas().style.cursor = '';
     });
+
+    map.on('idle', () => {
+        map.moveLayer('gasses-point');
+    });
+
+    //Create the legend of the map
+    const legend = document.getElementById("legend");
+    legend.appendChild(CreateLegend());
 });
 
 // Add the navigation control
 map.addControl(new maplibregl.NavigationControl());
+// MapLibre GL JS does not handle RTL text by default, so we recommend adding this dependency to fully support RTL rendering. 
+maplibregl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.1/mapbox-gl-rtl-text.js');
 
-document.getElementById("legend").appendChild((() => {
-    let list = document.createElement('ul');
-
+function CreateLegend () {
+    const list = document.createElement('ul');
+    
     Object.keys(levels).forEach((key) => {
-        let item = document.createElement('li');
-
+        const item = document.createElement('li');
         item.innerHTML = `<span style="background-color: ${levelColors[key]}"></span>${levels[key]}`;
-
         list.appendChild(item);
     });
-
+    
     return list;
-})());
+}
 
 const CloseDetails = () => {
     document.getElementById("detail").style.display = "none";
@@ -120,11 +123,11 @@ const CreateDetails = async (detail, props, coords) => {
 }
 
 const CreateDetailContent = async (detail, props) => {
-    let table = detail.querySelector('.table');
+    const table = detail.querySelector('.table');
     table.innerHTML = '';
 
     table.appendChild(createRow('Fecha', (() => {
-        let date = new Date(0);
+        const date = new Date(0);
         date.setUTCSeconds(props.Time);
         return date.toLocaleString('es-ES');
     })()));
@@ -141,46 +144,46 @@ const CreateDetailContent = async (detail, props) => {
 }
 
 const CreateDetailLocation = async (detail, coords) => {
-    let detailLocation = detail.querySelector('.detail-location');
+    const detailLocation = detail.querySelector('.detail-location');
     detailLocation.innerHTML = '';
 
-    let url = `https://geocode.maps.co/reverse?lat=${coords[1]}&lon=${coords[0]}&format=json`;
+    const url = `https://geocode.maps.co/reverse?lat=${coords[1]}&lon=${coords[0]}&format=json`;
     let response = await fetch(url);
     response = await response.json();
 
     detailLocation.appendChild((() => {
-        let h3 = document.createElement("h3");
+        const h3 = document.createElement("h3");
         h3.innerHTML = response["display_name"];
         return h3;
     })());
     detailLocation.appendChild((() => {
-        let p = document.createElement("p");
-        let cod = `${Math.abs(coords[1].toFixed(4))}&deg;${coords[1]<0? 'S':'N'} ${Math.abs(coords[0].toFixed(4))}&deg;${coords[0]<0? 'W':'E'}`;
+        const p = document.createElement("p");
+        const cod = `${Math.abs(coords[1].toFixed(4))}&deg;${coords[1]<0? 'S':'N'} ${Math.abs(coords[0].toFixed(4))}&deg;${coords[0]<0? 'W':'E'}`;
         p.innerHTML = cod;
         return p;
     })());
 }
 
 const CreateAirometer = async (detail, props) => {
-    let airometer = detail.querySelector('#airometer');
-    let lvl = props['LVL'];
+    const airometer = detail.querySelector('#airometer');
+    const lvl = props['LVL'];
 
-    let description = airometer.querySelector('.level-description');
+    const description = airometer.querySelector('.level-description');
     description.innerHTML = `<p>${levels[lvl]}</p>`;
 
-    let indicator = airometer.querySelector('.indicator');
+    const indicator = airometer.querySelector('.indicator');
     indicator.style.transform = `rotate(${(lvl-3)*36}deg)`;
 }
 
 const createRow = (th, td) => {
-    let row = document.createElement('tr');
+    const row = document.createElement('tr');
     row.appendChild((() => {
-        let h = document.createElement('th');
+        const h = document.createElement('th');
         h.innerHTML = th;
         return h;
     })());
     row.appendChild((() => {
-        let d = document.createElement('td');
+        const d = document.createElement('td');
         d.innerHTML = td;
         return d;
     })());

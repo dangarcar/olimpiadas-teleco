@@ -58,9 +58,6 @@ SPIClass * hspi = nullptr;
 //SQLite database
 SQLite* sql = nullptr;
 
-//TEST
-#include "test.hpp"
-
 void setup()
 {
     esp_task_wdt_init(30, false); //DANGER! Disable the watchdog timer of the background tasks
@@ -104,32 +101,16 @@ void setup()
             request->send(SD, "/index.html", "text/html");
         });
 
-        server.on("/map", HTTP_GET, [](AsyncWebServerRequest* request) {
-            request->send(SD, "/map.html", "text/html");
-        });
-
         server.on("/data", HTTP_GET, [](AsyncWebServerRequest* request){
-            unsigned long t = millis();
             SD.remove(JSON_TEMP_FILE);
-            Serial.printf("Remove Time: %lu ", millis()-t);
-            t = millis();
             sql->jsonQuery("SELECT ID,Time,Lon,Lat,Temp,Hum,NO2,CO,NH3,PM25,PM10,LVL FROM Data ORDER BY ID DESC", 2000);
-            Serial.printf("SQL Time: %lu ", millis()-t);
-            t = millis();
             request->send(SD, JSON_TEMP_FILE, "application/json");
-            Serial.printf("Upload Time: %lu\n", millis()-t);
         });
 
         server.on("/last", HTTP_GET, [](AsyncWebServerRequest* request){
-            unsigned long t = millis();
             SD.remove(JSON_TEMP_FILE);
-            Serial.printf("Remove Time: %lu ", millis()-t);
-            t = millis();
             sql->jsonQuery("SELECT ID,Time,Lon,Lat,Temp,Hum,NO2,CO,NH3,PM25,PM10,LVL FROM Data ORDER BY Time DESC LIMIT 1;");
-            Serial.printf("SQL Time: %lu ", millis()-t);
-            t = millis();
             request->send(SD, JSON_TEMP_FILE, "application/json");
-            Serial.printf("Upload Time: %lu\n", millis()-t);
         });
 
         server.serveStatic("/", SD, "/");
@@ -143,35 +124,6 @@ void setup()
     else {
         println("Couldn't connect to WiFi");
     }
-
-    /*//TEST
-    for(int i=0; i<1000; i++){
-        NodePacket p;
-
-        p.dest = 0xFF;
-        p.emmiter = 0xAA;
-        p.unix = i*i*i;
-        p.lng = -6.45 + double(rand())/(5.0*RAND_MAX);
-        p.lat = 39.35 + double(rand())/(5.0*RAND_MAX);
-        p.temp = 25;
-        p.hum = 50;
-        
-        p.no2 = random(0,50)/100.0;
-        p.co = random(0,5000)/100.0;
-        p.nh3 = random(0, 500)/100.0;
-        p.pm25 = random(0, 80);
-        p.pm10 = random(0, 160);
-
-        int ans = INT_MIN;
-        ans = max(no2Level(p.no2), ans);
-        ans = max(nh3Level(p.nh3), ans);
-        ans = max(coLevel(p.co), ans);
-        ans = max(pm25Level(p.pm25), ans);
-        ans = max(pm10Level(p.pm10), ans);
-        p.lvl = ans+1;
-
-        storePacket(p);
-    }*/
 }
 
 void loop()

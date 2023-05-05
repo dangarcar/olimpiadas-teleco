@@ -12,7 +12,7 @@ const char* END = "]}";
 
 const char* JSON_TEMP_FILE = "/temp.json";
 const char* TXT_TEMP_FILE = "/temp.txt";
-const char* DB_FILE = "/sd/qwerty.db";
+const char* DB_FILE = "/sd/data.db";
 const char* CREATE_SQL = "CREATE TABLE IF NOT EXISTS 'Data' ("
             "'ID'	INTEGER,"
             "'Time'	INTEGER NOT NULL,"
@@ -111,7 +111,6 @@ static int jsonCallback(void *data, int argc, char **argv, char **azColName){
         file->print(",");
     fn->n++;
     serializeJson(doc, *file);
-    Serial.println(argv[0]);
 
     return 0;
 }
@@ -137,7 +136,6 @@ int SQLite::jsonQuery(const char* s, int limit, int step){
     for(int i=0; i<n; i++){
         char sql[256];
         sprintf(sql, "%s LIMIT %d OFFSET %d;", s, step, offset);
-        Serial.println(sql);
         errco = sqlite3_exec(db, sql, jsonCallback, (void*)&fn, (char**)&errmsg);
         if (errco != SQLITE_OK) {
             Serial.println("Error");
