@@ -132,7 +132,7 @@ void loop() {
 
     switch (state) {
     case TX:
-        delay(3000);
+        delay(10000);
         txNumber++;
 
         NodePacket p;
@@ -259,7 +259,7 @@ void calibrateSensors(){
         NH3Stable = abs(fltSumNH3 / MICS_CALIBRATION_SECONDS - curNH3) < MICS_CALIBRATION_DELTA;
         REDStable = abs(fltSumRED / MICS_CALIBRATION_SECONDS - curRED) < MICS_CALIBRATION_DELTA;
         OXStable = abs(fltSumOX / MICS_CALIBRATION_SECONDS - curOX) < MICS_CALIBRATION_DELTA;
-        GPSLocStable = GPS.location.isValid();
+        GPSLocStable = GPS.location.isValid() && GPS.location.lat() > 10.0;
         GPSTimeStable = GPS.time.isValid();
         GPSDateStable = GPS.date.isValid();
 
