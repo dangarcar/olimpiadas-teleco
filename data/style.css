@@ -1,0 +1,232 @@
+:root {
+    --color-good : rgb(0, 235, 23);
+    --color-moderate : rgb(235, 235, 2);
+    --color-poor : rgb(235, 157, 2);
+    --color-verypoopr : rgb(235, 2, 2);
+    --color-extremelypoor : rgb(163, 2, 69);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans", Verdana, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: -1;
+}
+
+.maplibregl-popup {
+    max-width: 400px;
+}
+
+#legend {
+    width: 160px;
+    height: 180px;
+
+    padding: 1rem;
+    margin: 10px;
+    background-color: rgba(255,255,255,0.8);
+    text-align: left;
+    position: absolute;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+    top: calc(93% - 180px);
+    border-radius: 5px;
+    z-index: 10000;
+}
+
+#legend ul {
+    list-style-type: none;
+    padding: 10px;
+    margin: 0px;
+}
+
+#legend li {
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+}
+
+#legend span {
+    height: 15px;
+    width: 15px;
+    text-align: left;
+    margin-right: 8px;
+}
+
+.close{
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 0.5rem;
+    color: gray;
+    font-size: 150%;
+    text-align: right;
+}
+
+#detail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    width: 400px;
+    background: white;
+    position: absolute;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.4);
+}
+
+.flex-child-element {
+    /*border: 2px solid blueviolet;*/
+    margin: 10px;
+    padding: 10px;
+}  
+
+.table {
+    display: table;
+    text-align: left;
+}
+
+.table th {
+    padding-right: 1rem;
+    color: rgb(63, 58, 58);
+    font-weight: 600;
+}
+
+#airometer {
+    width: 360px;
+    height: 320px;
+}
+
+#airometer .airo-wrapper {
+    width: 360px;
+    height: 180px;
+    border-top-left-radius: 360px;
+    border-top-right-radius: 360px;
+    overflow: hidden;
+    position: relative;
+}
+
+#airometer .airo-wrapper .indicator-wrapper {
+    position: absolute;
+    left: 10%;
+    top: 20%;
+    width: 80%;
+    height: 80%;
+    border-top-left-radius: 360px;
+    border-top-right-radius: 360px;
+    background-color: #ffffff;
+    z-index: 400;
+}
+
+#airometer .airo-wrapper .bar {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    transform-origin: bottom center;
+}
+
+#airometer .airo-wrapper .bar-1 {
+    top: 0;
+    left: 0;
+    z-index: 200;
+    transform: rotate(calc(36deg - 180deg));
+    background-color: var(--color-good);
+}
+
+#airometer .airo-wrapper .bar-2 {
+    top: 0;
+    right: 0;
+    z-index: 150;
+    transform: rotate(calc(72deg - 180deg));
+    background-color: var(--color-moderate);
+}
+
+#airometer .airo-wrapper .bar-3 {
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transform: rotate(calc(108deg - 180deg));
+    background-color: var(--color-poor);
+}
+
+#airometer .airo-wrapper .bar-4 {
+    top: 0;
+    left: 0;
+    z-index: 50;
+    transform: rotate(calc(144deg - 180deg));
+    background-color: var(--color-verypoopr);
+}
+
+#airometer .airo-wrapper .bar-5 {
+    top: 0;
+    left: 0;
+    z-index: 0;
+    background-color: var(--color-extremelypoor);
+}
+
+#airometer .airo-wrapper .indicator {
+    width: 10px;
+    height: 100%;
+    
+    border-bottom-left-radius:1px;
+    border-bottom-right-radius: 1px;
+    border-top-left-radius: 200%;
+    border-top-right-radius: 200%;
+    transform-origin: bottom center;
+    background: black;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 500;
+
+    transform: translateY(-10px);
+}
+
+#airometer .airo-wrapper .air-level {
+    overflow: visible;
+    height: 25px;
+    width: 25px;
+    background-color: black;
+    border-radius: 50%;
+    display: block;
+    position: absolute;
+    z-index: 600;
+    bottom: -12.5px;
+    left: calc(50% - 12.5px);
+}
+
+#airometer .level-description {
+    height: 40px;
+    background-color: lightgray;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+#airometer p {
+    padding: 0;
+    margin: 0;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.detail-location{
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.detail-location p {
+    color: rgb(63, 58, 58);
+    font-size: 90%;
+    margin: 0;
+}
+
+.detail-location h3 {
+    margin: 0;
+}

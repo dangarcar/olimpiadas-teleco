@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Medidor de calidad del aire IES Al-Qázeres</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script type="text/javascript" src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="./style.css">
+    <script defer src="./index.js"></script>
+</head>
+
+<body>
+    <div id="legend">
+        <b>Calidad del aire</b>
+    </div>
+    <div id="map"></div>
+    
+    <div id="detail" style="display:none;">
+        <div class="close" onclick="CloseDetails()">x</div>
+
+        <div class="detail-location flex-child-element"></div>
+
+        <div class="detail-content flex-child-element">
+            <table class="table"></table>
+        </div>
+
+        <div id="airometer" class="flex-child-element">
+            <div class="airo-wrapper">
+                <div class="indicator-wrapper">
+                    <div class="indicator"></div>
+                    <div class="air-level"></div>
+                </div>
+        
+                <div class="bar bar-1"></div>
+                <div class="bar bar-2"></div>
+                <div class="bar bar-3"></div>
+                <div class="bar bar-4"></div>
+                <div class="bar bar-5"></div>
+            </div>
+            <div class="level-description">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
