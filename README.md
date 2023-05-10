@@ -1,5 +1,5 @@
 # olimpiadas-teleco
-This project uses two esp32 with LoRa for measuring and analyzing air quality data with PMS5003 and MiCS-6814 sensors.
+This project uses two esp32 with LoRa for measuring and analyzing air quality data with PMS5003 and MiCS-6814 sensors. It stores its data in an SQLite3 database in an SD Card.
 
 This project works as this diagram shows:
 ![Project connections diagram](resources/diagram.png)
@@ -58,3 +58,9 @@ This project works as this diagram shows:
 
 6. Once you have it working, you have to get a device connected to the same network as the server and search for the IP that the server displays in the browser. Example:
     ![Example of the website](resources/capture.png)
+
+# Possible future upgrades
+- Connect it to the cloud
+- Connect it to The Things Network
+- Use AI to analyze data
+- Make a script to analyze the SD data offline

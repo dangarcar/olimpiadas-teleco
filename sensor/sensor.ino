@@ -35,7 +35,6 @@ DHT dht(DHTPIN, DHTTYPE);
 #define RX_TIMEOUT_VALUE 2000
 
 #define SERVER_ID 0xAA;
-#define TIMEZONE 2
 
 const uint32_t COLORS[] = { 0x005005,0x407000,0x601000,0x500000,0x700010 };
 
@@ -294,7 +293,6 @@ void calibrateSensors(){
     OXbaseR = fltSumOX / MICS_CALIBRATION_SECONDS;
 
     setTime(GPS.time.hour(), GPS.time.minute(), GPS.time.second(), GPS.date.day(), GPS.date.month(), GPS.date.year());
-    adjustTime(TIMEZONE*3600);
 }
 
 void OnTxDone(){
