@@ -30,22 +30,21 @@
 
 #define ID 0xAA;
 
-struct Packet{
+struct NodePacket {
     uint8_t dest;
-    uint8_t emmiter;
+    uint8_t emitter;
+    uint8_t lvl;
     time_t unix;
-};
-
-struct NodePacket : Packet {
     float lat, lng;
     float hum, temp;
     float co, no2, nh3;
     uint16_t pm25, pm10;
-    uint8_t lvl;
 };
 
-struct GatewayPacket : Packet {
-
+struct GatewayPacket {
+    uint8_t dest;
+    uint8_t emitter;
+    time_t unix;
 };
 
 //TFT
@@ -173,8 +172,8 @@ void showPacketInfo(const NodePacket& p){
 
 void sendResponsePacket(const NodePacket& p){
     GatewayPacket g;
-    g.dest = p.emmiter;
-    g.emmiter = ID;
+    g.dest = p.emitter;
+    g.emitter = ID;
     g.unix = p.unix;
 
     LoRa.idle();

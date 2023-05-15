@@ -59,8 +59,10 @@ This project works as this diagram shows:
 6. Once you have it working, you have to get a device connected to the same network as the server and search for the IP that the server displays in the browser. Example:
     ![Example of the website](resources/capture.png)
 
+# Offline work 
+You can also use [this repo](https://github.com/dangarcar/olimpiadas-teleco-python) to analyze the same data offline 
+
 # Possible future upgrades
 - Connect it to the cloud
 - Connect it to The Things Network
 - Use AI to analyze data
-- Make a script to analyze the SD data offline

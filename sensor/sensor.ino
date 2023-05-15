@@ -40,22 +40,21 @@ const uint32_t COLORS[] = { 0x005005,0x407000,0x601000,0x500000,0x700010 };
 
 const uint8_t ID = 0xFF;
 
-struct Packet{
+struct NodePacket {
     uint8_t dest;
-    uint8_t emmiter;
+    uint8_t emitter;
+    uint8_t lvl;
     time_t unix;
-};
-
-struct NodePacket : Packet {
     float lat, lng;
     float hum, temp;
     float co, no2, nh3;
     uint16_t pm25, pm10;
-    uint8_t lvl;
 };
 
-struct GatewayPacket : Packet {
-    
+struct GatewayPacket {
+    uint8_t dest;
+    uint8_t emitter;
+    time_t unix;
 };
 
 static RadioEvents_t RadioEvents;
@@ -78,7 +77,7 @@ int16_t Rssi, rxSize;
 volatile uint32_t color;
 
 volatile bool calibrated = false;
-//volatile bool calibrated = true;
+volatile bool gpsNeeded = true;
 
 void setup() {
     Serial.begin(115200);
@@ -119,7 +118,7 @@ void setup() {
 }
 
 void calibrateTrigger(){
-    calibrated = false;
+    gpsNeeded = !gpsNeeded;
 }
 
 void loop() {
@@ -136,7 +135,7 @@ void loop() {
 
         NodePacket p;
         p.dest = SERVER_ID;
-        p.emmiter = ID;
+        p.emitter = ID;
         readGPS(&p);
         readDHT(&p);
         readMICS(&p);
@@ -201,6 +200,9 @@ void calibrateSensors(){
     bool GPSTimeStable = false;
     bool GPSDateStable = false;
 
+    bool gpsOK = false;
+    bool micsOK = false;
+
     // Initialize buffer
     for (int i = 0; i < MICS_CALIBRATION_SECONDS; ++i) {
         bufferNH3[i] = 0;
@@ -262,6 +264,9 @@ void calibrateSensors(){
         GPSTimeStable = GPS.time.isValid();
         GPSDateStable = GPS.date.isValid();
 
+        gpsOK = !gpsNeeded || GPSLocStable && GPSTimeStable && GPSDateStable;
+        micsOK = NH3Stable && REDStable && OXStable;
+
         // Advance buffer pointer
         pntrNH3 = (pntrNH3 + 1) % MICS_CALIBRATION_SECONDS ;
         pntrRED = (pntrRED + 1) % MICS_CALIBRATION_SECONDS;
@@ -284,7 +289,7 @@ void calibrateSensors(){
         Serial.print(String{GPSTimeStable});
         Serial.print(String{GPSDateStable});
     }
-    while (!(NH3Stable && REDStable && OXStable && GPSLocStable && GPSTimeStable && GPSDateStable));
+    while (!gpsOK || !micsOK);
 
     println("DONE!");
 
