@@ -17,10 +17,7 @@ const uint8_t * font = ArialMT_Plain_10;
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
-//WORKS DONT TOUCH!
-
 #define RF_FREQUENCY 868000000
-
 #define TX_OUTPUT_POWER 17
 
 #define LORA_BANDWIDTH 0
